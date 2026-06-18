@@ -1,0 +1,133 @@
+{
+  "meta": {
+    "lastUpdated": "2026-06-12",
+    "challengeStart": "2026-06-14"
+  },
+  "dailyChecklist": [
+    {
+      "id": "gruppo_samudeen",
+      "label": "Post gruppo Samudeen (markup + bias)",
+      "required": true
+    },
+    {
+      "id": "video_challenge",
+      "label": "Video challenge pubblicato",
+      "required": true
+    },
+    {
+      "id": "task_social",
+      "label": "Task social media completata",
+      "required": true
+    },
+    {
+      "id": "grafico_realtime",
+      "label": "Grafico in tempo reale analizzato",
+      "required": false
+    },
+    {
+      "id": "allarme_segnato",
+      "label": "Allarme segnato",
+      "required": false
+    },
+    {
+      "id": "journal_trade",
+      "label": "Journal dei trade del giorno",
+      "required": false
+    },
+    {
+      "id": "backtest_5",
+      "label": "5 backtest documentati (screenshot + EM + RR + esito)",
+      "required": false
+    },
+    {
+      "id": "formazione_samudeen",
+      "label": "Formazione Samudeen (un concetto ripassato)",
+      "required": false
+    },
+    {
+      "id": "video_giorno",
+      "label": "Video del giorno (script → registra → edita)",
+      "required": false
+    },
+    {
+      "id": "ai_leva",
+      "label": "1h AI",
+      "required": false
+    }
+  ],
+  "counters": [
+    { "id": "streakGruppo",    "label": "Streak gruppo",  "value": 0, "unit": "giorni" },
+    { "id": "backtest",        "label": "Backtest",        "value": 0, "unit": "trade"  },
+    { "id": "tradeLive",       "label": "Trade live",      "value": 0, "unit": "trade"  },
+    { "id": "videoPubblicati", "label": "Video pubblicati","value": 0, "unit": "video"  },
+    { "id": "streakVideo",     "label": "Streak video",    "value": 0, "unit": "giorni" }
+  ],
+  "milestones": {
+    "trading": [
+      {
+        "id": "M0",
+        "name": "Setup",
+        "description": "Trading plan trascritto + journal pronto + conto live aperto",
+        "deadline": "2026-06-14",
+        "status": "in-progress"
+      },
+      {
+        "id": "M1",
+        "name": "Primo blocco",
+        "description": "25 backtest + 7 giorni streak gruppo",
+        "deadline": "2026-06-28",
+        "status": "locked",
+        "targets": { "backtest": 25, "streakGruppo": 7 }
+      },
+      {
+        "id": "M2",
+        "name": "100 backtest",
+        "description": "100 backtest documentati + 30 giorni streak gruppo",
+        "deadline": "2026-07-15",
+        "status": "locked",
+        "targets": { "backtest": 100, "streakGruppo": 30 }
+      },
+      {
+        "id": "M3",
+        "name": "50 trade live",
+        "description": "50 trade live journaled, conformità >80%",
+        "deadline": "2026-09-30",
+        "status": "locked",
+        "targets": { "tradeLive": 50 }
+      },
+      {
+        "id": "M4",
+        "name": "Checkpoint processo",
+        "description": "Valutazione del processo — non del P&L",
+        "deadline": "2026-12-31",
+        "status": "locked"
+      }
+    ],
+    "social": [
+      {
+        "id": "S1",
+        "name": "Prima settimana",
+        "description": "7 video della challenge pubblicati",
+        "deadline": "2026-06-21",
+        "status": "in-progress",
+        "targets": { "videoPubblicati": 7 }
+      },
+      {
+        "id": "S2",
+        "name": "Primo mese",
+        "description": "30 video pubblicati + 30 giorni streak video",
+        "deadline": "2026-07-14",
+        "status": "locked",
+        "targets": { "videoPubblicati": 30, "streakVideo": 30 }
+      },
+      {
+        "id": "S3",
+        "name": "Due mesi",
+        "description": "60 video pubblicati",
+        "deadline": "2026-08-14",
+        "status": "locked",
+        "targets": { "videoPubblicati": 60 }
+      }
+    ]
+  }
+}
