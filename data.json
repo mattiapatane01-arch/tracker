@@ -5,54 +5,44 @@
   },
   "dailyChecklist": [
     {
-      "id": "gruppo_samudeen",
-      "label": "Post gruppo Samudeen (markup + bias)",
-      "required": true
+      "id": "trading",
+      "label": "Trading",
+      "icon": "📈",
+      "tasks": [
+        { "id": "samu_lezione",          "label": "Studio lezione di Samu" },
+        { "id": "analisi_grafici",       "label": "Analisi dei grafici attuali" },
+        { "id": "backtest_5",            "label": "5 backtest analizzati" },
+        { "id": "analisi_backtest_ieri", "label": "Analisi dei backtest di ieri" },
+        { "id": "messaggio_gruppo",      "label": "Messaggio nel gruppo" }
+      ]
     },
     {
-      "id": "video_challenge",
-      "label": "Video challenge pubblicato",
-      "required": true
+      "id": "social",
+      "label": "Social Media",
+      "icon": "🎬",
+      "tasks": [
+        { "id": "studio_task_giorno", "label": "Studio della task del giorno" },
+        { "id": "video_pronto",       "label": "Video pronto per il giorno dopo" },
+        { "id": "idee_riscritte",     "label": "Idee riscritte (se ci sono)" },
+        { "id": "risposta_chat",      "label": "Risposta ad almeno 3 chat in sospeso" }
+      ]
     },
     {
-      "id": "task_social",
-      "label": "Task social media completata",
-      "required": true
+      "id": "ai",
+      "label": "AI",
+      "icon": "🤖",
+      "tasks": [
+        { "id": "ai_task_giorno",    "label": "Task del giorno fatta" },
+        { "id": "ai_micro_concetto", "label": "Micro-concetto imparato (✏ scrivilo nella nota)" }
+      ]
     },
     {
-      "id": "grafico_realtime",
-      "label": "Grafico in tempo reale analizzato",
-      "required": false
-    },
-    {
-      "id": "allarme_segnato",
-      "label": "Allarme segnato",
-      "required": false
-    },
-    {
-      "id": "journal_trade",
-      "label": "Journal dei trade del giorno",
-      "required": false
-    },
-    {
-      "id": "backtest_5",
-      "label": "5 backtest documentati (screenshot + EM + RR + esito)",
-      "required": false
-    },
-    {
-      "id": "formazione_samudeen",
-      "label": "Formazione Samudeen (un concetto ripassato)",
-      "required": false
-    },
-    {
-      "id": "video_giorno",
-      "label": "Video del giorno (script → registra → edita)",
-      "required": false
-    },
-    {
-      "id": "ai_leva",
-      "label": "1h AI",
-      "required": false
+      "id": "studio_extra",
+      "label": "Studio extra",
+      "icon": "📚",
+      "tasks": [
+        { "id": "lettura_podcast", "label": "Lettura o podcast ascoltato (✏ cosa ho imparato)" }
+      ]
     }
   ],
   "counters": [

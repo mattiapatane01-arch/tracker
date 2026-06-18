@@ -4,344 +4,296 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: #0d0d0d;
-      color: #e8e8e8;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 15px;
       line-height: 1.5;
-      padding: 24px 16px;
-      max-width: 640px;
+      color: #e8e8e8;
+      padding: 20px 14px;
+      max-width: 600px;
       margin: 0 auto;
+      background: transparent;
     }
 
-    .header { margin-bottom: 32px; }
+    /* Cielo giorno/notte (sfondo fisso dietro a tutto) */
+    #sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
+    #sky.day   { background: radial-gradient(130% 130% at 72% 12%, #b9e6ff, #7ec0ee 52%, #cfe9ff); }
+    #sky.night { background: radial-gradient(130% 130% at 72% 10%, #16203e, #0a0f1e 55%, #05070f); }
+
+    .star { position: absolute; background: #fff; animation: tw ease-in-out infinite; }
+    @keyframes tw { 0%,100%{opacity:.12} 50%{opacity:1} }
+    .moon { position: absolute; top: 7%; right: 13%; width: 50px; height: 50px;
+      background: #e9e7d6; box-shadow: inset -10px -10px 0 #c8c5ad, 0 0 36px rgba(233,231,214,.35); }
+    .sun  { position: absolute; top: 7%; right: 13%; width: 54px; height: 54px;
+      background: #ffe680; box-shadow: 0 0 0 6px #ffd84d, 0 0 55px rgba(255,214,77,.65); }
+
+    .cloud { position: absolute; width: 70px; height: 20px; background: #fff; opacity: .9;
+      box-shadow: 22px 8px 0 0 #fff, -20px 7px 0 0 #fff; animation: drift linear infinite; }
+    @keyframes drift { from { transform: translateX(-160px); } to { transform: translateX(108vw); } }
+
+    .bird { position: absolute; width: 6px; height: 6px; background: #33312e; pointer-events: none; }
+    .bird::before, .bird::after { content: ""; position: absolute; top: 1px; width: 9px; height: 3px; background: #33312e; }
+    .bird::before { left: -8px; transform-origin: right center; animation: flap .3s ease-in-out infinite; }
+    .bird::after  { right: -8px; transform-origin: left center;  animation: flap .3s ease-in-out infinite; }
+    @keyframes flap { 0%,100% { transform: rotate(22deg); } 50% { transform: rotate(-22deg); } }
+    @keyframes fly  { from { transform: translate(-40px,0); } to { transform: translate(104vw,-30px); } }
+
+    /* Header */
+    .header { margin-bottom: 22px; text-align: center; }
     .header h1 {
+      font-family: 'Press Start 2P', monospace;
       font-size: 22px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
       color: #fff;
+      text-shadow: 3px 3px 0 #000, 0 0 12px rgba(128,199,31,0.3);
     }
-    .header .date { color: #555; font-size: 13px; margin-top: 4px; }
+    .header .date { font-size: 12px; color: #9ab07f; margin-top: 4px; }
 
-    .section { margin-bottom: 32px; }
+    .section { margin-bottom: 24px; }
     .section-title {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #444;
-      margin-bottom: 10px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: #7e9663;
+      margin-bottom: 12px;
+      line-height: 1.6;
     }
+    .past-label { color: #c9802f; margin-left: 6px; }
 
-    .card {
-      background: #1a1a1a;
-      border: 1px solid #262626;
-      border-radius: 10px;
-      padding: 4px 16px;
-    }
-
-    /* Checklist */
     .checklist-progress {
-      font-size: 12px;
-      color: #444;
-      margin-bottom: 8px;
-      text-align: right;
+      font-size: 12px; color: #9ab07f; margin-bottom: 12px; text-align: right;
     }
-    .checklist-progress span { color: #777; }
+    .checklist-progress span { color: #cdebac; font-weight: 700; }
 
+    /* Pannello stile inventario Minecraft */
+    .card {
+      background: #c6c6c6;
+      border: 3px solid #2b2b2b;
+      box-shadow: inset 3px 3px 0 #fefefe, inset -3px -3px 0 #8a8a8a;
+      padding: 8px 12px;
+    }
+
+    /* Macro-aree */
+    .cat-block { margin-bottom: 20px; }
+    .cat-block:last-child { margin-bottom: 0; }
+    .cat-title {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .cat-name {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 12px; color: #fff; line-height: 1.5;
+      text-shadow: 2px 2px 0 #000; flex: 1;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .cat-emoji {
+      display: inline-block; font-size: 22px;
+      animation: bob 1.7s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateY(0) rotate(-5deg); }
+      50%      { transform: translateY(-5px) rotate(5deg); }
+    }
+    .cat-count {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px; color: #d9d9d9; flex-shrink: 0; text-shadow: 2px 2px 0 #000;
+    }
+    .cat-streak { color: #ffcb3d; margin-left: 4px; }
+    .cat-block.cat-complete .cat-name,
+    .cat-block.cat-complete .cat-count { color: #80c71f; }
+
+    /* Riga task */
     .checklist-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid #1f1f1f;
-      cursor: pointer;
-      user-select: none;
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 4px; border-bottom: 2px solid #b0b0b0;
+      cursor: pointer; user-select: none;
     }
     .checklist-item:last-child { border-bottom: none; }
 
+    /* Checkbox come "slot" dell'inventario */
     .checklist-item input[type="checkbox"] {
-      width: 17px;
-      height: 17px;
-      accent-color: #4ade80;
-      cursor: pointer;
-      flex-shrink: 0;
+      appearance: none; -webkit-appearance: none;
+      width: 22px; height: 22px; flex-shrink: 0; cursor: pointer; position: relative;
+      background: #8b8b8b; border: 2px solid #373737;
+      box-shadow: inset 2px 2px 0 #6f6f6f, inset -2px -2px 0 #a6a6a6;
+    }
+    .checklist-item input[type="checkbox"]:checked {
+      background: #5d9c3c;
+      box-shadow: inset 2px 2px 0 #6fb84a, inset -2px -2px 0 #437026;
+    }
+    .checklist-item input[type="checkbox"]:checked::after {
+      content: ""; position: absolute; left: 6px; top: 6px;
+      width: 8px; height: 8px; background: #eafff0; box-shadow: 2px 2px 0 #2b5016;
     }
     .checklist-item label {
-      cursor: pointer;
-      flex: 1;
-      color: #bbb;
-      font-size: 14px;
+      cursor: pointer; flex: 1; color: #2b2b2b; font-size: 15px; font-weight: 600;
     }
-    .checklist-item.checked label {
-      color: #3a3a3a;
-      text-decoration: line-through;
-    }
+    .checklist-item.checked label { color: #6a6a6a; text-decoration: line-through; }
 
-    .required-badge {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: #f97316;
-      border: 1px solid #7c2d12;
-      border-radius: 4px;
-      padding: 2px 6px;
-      flex-shrink: 0;
-    }
-
-    /* Contatori */
-    .counters-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .counter-card {
-      background: #1a1a1a;
-      border: 1px solid #262626;
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-    .counter-label {
-      font-size: 11px;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 6px;
-    }
-    .counter-value {
-      font-size: 40px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1;
-      font-variant-numeric: tabular-nums;
-    }
-    .counter-unit {
-      font-size: 11px;
-      color: #383838;
-      margin-top: 2px;
-    }
-    .counter-controls {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      margin-top: 12px;
-    }
-    .btn-counter {
-      width: 34px;
-      height: 34px;
-      border: 1px solid #2e2e2e;
-      border-radius: 7px;
-      background: #222;
-      color: #888;
-      font-size: 20px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.1s, color 0.1s;
-    }
-    .btn-counter:hover { background: #2a2a2a; color: #ccc; }
-    .btn-counter:active { background: #333; }
-
-    /* Milestone — stili base (layout gestito da .milestone-top nella nuova struttura) */
-    .milestone-id {
-      font-size: 11px;
-      font-weight: 700;
-      color: #444;
-      min-width: 26px;
-      padding-top: 3px;
-      letter-spacing: 0.04em;
-      flex-shrink: 0;
-    }
-    .milestone-body { flex: 1; }
-    .milestone-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #ccc;
-      margin-bottom: 2px;
-    }
-    .milestone-desc {
-      font-size: 11px;
-      color: #404040;
-      margin-bottom: 3px;
-    }
-    .milestone-deadline { font-size: 10px; color: #2e2e2e; }
-
-    .status-badge {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 3px 8px;
-      border-radius: 4px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .status-locked      { color: #3a3a3a; border: 1px solid #2a2a2a; }
-    .status-in-progress { color: #facc15; border: 1px solid #713f12; }
-    .status-done        { color: #4ade80; border: 1px solid #166534; }
-
-    /* Navigazione giorni */
-    .nav {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    .btn-nav {
-      background: none;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      color: #555;
-      width: 28px;
-      height: 28px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .btn-nav:hover:not(:disabled) { border-color: #444; color: #aaa; }
-    .btn-nav:disabled { opacity: 0.2; cursor: default; }
-    .past-label {
-      font-size: 11px;
-      color: #3a3a3a;
-      margin-left: 4px;
-    }
+    /* Giorni passati */
     .checklist-item.past { pointer-events: none; }
     .checklist-item.past label { cursor: default; }
-
-    /* Colori giorni passati */
-    .checklist-item.past-done label   { color: #4ade80; }
-    .checklist-item.past-missed label { color: #f87171; }
-    .checklist-item.past-done input,
-    .checklist-item.past-missed input { opacity: 0.4; }
+    .checklist-item.past-done label   { color: #2e7d18; }
+    .checklist-item.past-missed label { color: #b23b3b; }
+    .checklist-item.past input { opacity: 0.5; }
 
     /* Note */
     .note-btn {
-      background: none;
-      border: none;
-      color: #2e2e2e;
-      cursor: pointer;
-      font-size: 13px;
-      padding: 2px 4px;
-      flex-shrink: 0;
-      line-height: 1;
-      transition: color 0.1s;
+      background: none; border: none; color: #6a6a6a; cursor: pointer;
+      font-size: 14px; padding: 2px 4px; flex-shrink: 0; line-height: 1;
     }
-    .note-btn:hover { color: #666; }
+    .note-btn:hover { color: #2b2b2b; }
     .note-preview {
-      font-size: 11px;
-      color: #3a3a3a;
-      padding: 0 0 6px 29px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 12px; color: #5a5a5a; padding: 2px 0 6px 34px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .note-area {
-      display: none;
-      padding: 4px 0 10px 29px;
-    }
+    .note-area { display: none; padding: 4px 0 10px 34px; }
     .note-area.open { display: block; }
     .note-area textarea {
-      width: 100%;
-      background: #111;
-      border: 1px solid #242424;
-      border-radius: 6px;
-      color: #777;
-      font-size: 12px;
-      font-family: inherit;
-      line-height: 1.5;
-      padding: 8px 10px;
-      resize: none;
-      height: 56px;
-      outline: none;
+      width: 100%; background: #ededed; border: 2px solid #373737;
+      box-shadow: inset 2px 2px 0 #b8b8b8;
+      color: #2b2b2b; font-size: 13px; font-family: inherit; line-height: 1.5;
+      padding: 8px 10px; resize: none; height: 56px; outline: none;
     }
-    .note-area textarea:focus { border-color: #333; color: #aaa; }
-    .note-area textarea:disabled { opacity: 0.5; cursor: default; }
+    .note-area textarea:focus { border-color: #5d9c3c; }
+    .note-area textarea:disabled { opacity: 0.6; cursor: default; }
 
-    /* Streak fuoco */
-    .fire-streak {
-      font-size: 11px;
-      color: #f97316;
-      margin-top: 5px;
-      letter-spacing: 0.02em;
+    /* Navigazione giorni */
+    .nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+    .btn-nav {
+      background: #7a7a7a; border: 2px solid #2b2b2b;
+      box-shadow: inset 2px 2px 0 #9a9a9a, inset -2px -2px 0 #565656;
+      color: #fff; width: 30px; height: 30px; font-size: 14px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
+    .btn-nav:active:not(:disabled) { box-shadow: inset -2px -2px 0 #9a9a9a, inset 2px 2px 0 #565656; }
+    .btn-nav:disabled { opacity: 0.3; cursor: default; }
+    .date { font-size: 12px; color: #cdebac; font-weight: 600; }
 
-    /* Milestone a due colonne */
-    .milestones-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    /* Milestone */
+    .milestones-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .milestone-col-title {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #333;
-      margin-bottom: 8px;
+      font-family: 'Press Start 2P', monospace; font-size: 9px;
+      color: #cdebac; margin-bottom: 8px; text-shadow: 2px 2px 0 #000;
     }
-
-    /* Barre progresso XP */
-    .milestone-item {
-      padding: 12px 0;
-      border-bottom: 1px solid #1f1f1f;
-    }
+    .milestone-item { padding: 10px 0; border-bottom: 2px solid #b0b0b0; }
     .milestone-item:last-child { border-bottom: none; }
-    .milestone-top {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin-bottom: 6px;
+    .milestone-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .milestone-id {
+      font-family: 'Press Start 2P', monospace; font-size: 9px; color: #5d5d5d;
+      min-width: 30px; padding-top: 2px; flex-shrink: 0;
     }
+    .milestone-body { flex: 1; }
+    .milestone-name { font-size: 13px; font-weight: 700; color: #2b2b2b; margin-bottom: 2px; }
+    .milestone-desc { font-size: 11px; color: #5a5a5a; margin-bottom: 3px; }
+    .milestone-deadline { font-size: 10px; color: #7a7a7a; }
+    .status-badge {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      padding: 3px 6px; flex-shrink: 0; margin-top: 2px; border: 2px solid;
+    }
+    .status-locked      { color: #6a6a6a; border-color: #8a8a8a; }
+    .status-in-progress { color: #b5860b; border-color: #b5860b; }
+    .status-done        { color: #2e7d18; border-color: #2e7d18; }
     .milestone-progress { margin-top: 6px; }
-    .mp-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    .mp-label {
-      font-size: 10px;
-      color: #444;
-      min-width: 80px;
-      flex-shrink: 0;
-    }
+    .mp-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .mp-label { font-size: 10px; color: #5a5a5a; min-width: 64px; flex-shrink: 0; }
     .mp-bar-wrap {
-      flex: 1;
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-radius: 3px;
-      height: 6px;
-      overflow: hidden;
+      flex: 1; height: 12px; background: #373737; border: 2px solid #232323; padding: 2px;
     }
     .mp-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      background: linear-gradient(90deg, #15803d, #4ade80);
-      box-shadow: 0 0 5px rgba(74,222,128,0.25);
-      transition: width 0.4s ease;
+      height: 100%; transition: width 0.4s ease;
+      background: repeating-linear-gradient(90deg,#80c71f 0,#80c71f 5px,#6db017 5px,#6db017 7px);
     }
-    .mp-pct {
-      font-size: 10px;
-      color: #333;
-      min-width: 28px;
-      text-align: right;
-      flex-shrink: 0;
+    .mp-pct { font-size: 10px; color: #5a5a5a; min-width: 28px; text-align: right; flex-shrink: 0; }
+
+    /* Icone pixel-art + gradi */
+    .cat-icon, .pix { display: inline-block; line-height: 0; }
+    .cat-icon svg { width: 26px; height: 26px; image-rendering: pixelated; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.5)); }
+    .pix svg { width: 20px; height: 20px; image-rendering: pixelated; }
+    .pix-slot {
+      width: 32px; height: 32px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: #8b8b8b; border: 2px solid #373737;
+      box-shadow: inset 2px 2px 0 #6f6f6f, inset -2px -2px 0 #a6a6a6;
     }
+    .rank-item { display: flex; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 2px solid #b0b0b0; }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-body { flex: 1; }
+    .rank-name { font-size: 12px; font-weight: 700; color: #2b2b2b; margin-bottom: 5px; }
+    .rank-count { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #5a5a5a; flex-shrink: 0; }
+
+    /* Schermata di clock-in */
+    .clockin {
+      min-height: 86vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center; gap: 10px;
+    }
+    .clockin-date {
+      font-family: 'Press Start 2P', monospace; font-size: 10px;
+      color: #9ab07f; text-shadow: 2px 2px 0 #000; line-height: 1.6;
+    }
+    .clockin-day {
+      font-family: 'Press Start 2P', monospace; font-size: 18px;
+      color: #fff; text-shadow: 3px 3px 0 #000; line-height: 1.6; margin-bottom: 8px;
+    }
+    .btn-clockin {
+      font-family: 'Press Start 2P', monospace; font-size: 14px;
+      margin-top: 8px; padding: 18px 34px; cursor: pointer; color: #fff;
+      background: #5d9c3c; border: 3px solid #2b2b2b;
+      box-shadow: inset 3px 3px 0 #6fb84a, inset -3px -3px 0 #437026;
+      text-shadow: 2px 2px 0 #2b5016;
+    }
+    .btn-clockin:active { box-shadow: inset -3px -3px 0 #6fb84a, inset 3px 3px 0 #437026; }
+    .clockin-phrase {
+      font-size: 14px; color: #cdebac; font-style: italic;
+      margin-top: 18px; max-width: 280px; min-height: 40px;
+    }
+
+    /* Blocco da minare (Start a pressione) */
+    .mine-block {
+      position: relative; width: 150px; height: 150px; margin-top: 8px;
+      cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      background: #7a9a52; border: 4px solid #2b2b2b;
+      box-shadow: inset 4px 4px 0 #8fb061, inset -4px -4px 0 #5e7a3e;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .mine-label {
+      font-family: 'Press Start 2P', monospace; font-size: 13px; color: #20300f;
+      text-align: center; line-height: 1.9; pointer-events: none; text-shadow: 1px 1px 0 #a7c97a;
+    }
+    .mine-block.shaking { animation: shake 0.12s linear infinite; }
+    @keyframes shake {
+      0%,100% { transform: translate(0,0); }
+      25% { transform: translate(-2px,1px); }
+      50% { transform: translate(2px,-1px); }
+      75% { transform: translate(-1px,-2px); }
+    }
+
+    /* Esplosione di "blocchi" al completamento di un'area */
+    .particle {
+      position: fixed; width: 12px; height: 12px; pointer-events: none; z-index: 999;
+      opacity: 1; transition: transform 0.85s ease-out, opacity 0.85s ease-out;
+    }
+    /* Crepe sul blocco (più task fatte = più visibili) */
+    .cat-block .card { position: relative; overflow: hidden; }
+    .crack {
+      position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
+      background-repeat: repeat; background-size: 40px 40px;
+      image-rendering: pixelated; transition: opacity 0.12s ease;
+    }
+    @keyframes panelpop {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.04); }
+      100% { transform: scale(1); }
+    }
+    .cat-block.justdone .card { animation: panelpop 0.45s ease; }
   </style>
 </head>
 <body>
 
+<div id="sky"></div>
 <div id="app">Caricamento...</div>
 
 <script>
@@ -354,6 +306,149 @@
   let currentDay = TODAY;
 
   function dayKey(day) { return 'tracker_checklist_' + day; }
+
+  // --- Clock-in (prima schermata della giornata) ---
+  // Stessa idea dell'auto-increment: una chiave diversa ogni giorno.
+  // Nuovo giorno = chiave assente = la schermata ricompare da sola (reset a mezzanotte gratis).
+  function hasClockedIn(day) {
+    return !!localStorage.getItem('tracker_clockin_' + day);
+  }
+  function setClockedIn(day) {
+    localStorage.setItem('tracker_clockin_' + day, new Date().toISOString());
+  }
+
+  // Frasi motivazionali: ne pesco una a caso ogni volta che mostro la schermata.
+  const PHRASES = [
+    'Un passo avanti a ieri.',
+    'Conta solo presentarsi, anche oggi.',
+    'Il processo, non il risultato.',
+    'Piccolo e costante batte grande e raro.',
+    'Nessuno lo farà al posto tuo.',
+    'Costruisci, non aspettare.',
+    'La disciplina di oggi è la libertà di domani.',
+    'Non devi essere perfetto, devi esserci.'
+  ];
+  function randomPhrase() {
+    return PHRASES[Math.floor(Math.random() * PHRASES.length)];
+  }
+
+  // Numero del giorno della challenge (da meta.challengeStart)
+  function challengeDay(start) {
+    const ms = Date.parse(TODAY + 'T00:00:00') - Date.parse(start + 'T00:00:00');
+    return Math.floor(ms / 86400000) + 1; // il primo giorno è "1"
+  }
+
+  // Icone pixel-art per area (monocrome: il colore lo decide il grado)
+  const ICONS = {
+    trading: '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="10" width="3" height="5"/><rect x="6" y="6" width="3" height="9"/><rect x="11" y="2" width="3" height="13"/></svg>',
+    social:  '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="2" width="2" height="12"/><rect x="6" y="3" width="2" height="10"/><rect x="8" y="4" width="2" height="8"/><rect x="10" y="5" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>',
+    ai:      '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="4" width="8" height="8"/><rect x="6" y="1" width="1" height="2"/><rect x="9" y="1" width="1" height="2"/><rect x="6" y="13" width="1" height="2"/><rect x="9" y="13" width="1" height="2"/><rect x="1" y="6" width="2" height="1"/><rect x="1" y="9" width="2" height="1"/><rect x="13" y="6" width="2" height="1"/><rect x="13" y="9" width="2" height="1"/></svg>',
+    studio_extra: '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="5" height="12"/><rect x="9" y="2" width="5" height="12"/><rect x="7" y="3" width="2" height="10"/></svg>'
+  };
+
+  // Scala dei gradi (per ora solo Bronzo e Argento; Oro 100 e Diamante 200 più avanti)
+  const RANKS = [
+    { name: 'Bronzo',  min: 15, color: '#cd7f32' },
+    { name: 'Argento', min: 50, color: '#c8ccd2' }
+  ];
+  const RANK_LOCKED = '#7a7a7a'; // grigio: non ancora raggiunto
+
+  // Grado attuale + prossimo obiettivo, dati i giorni completati
+  function rankInfo(days) {
+    if (days >= 50) return { current: RANKS[1], next: null };
+    if (days >= 15) return { current: RANKS[0], next: RANKS[1] };
+    return { current: { name: null, color: RANK_LOCKED }, next: RANKS[0] };
+  }
+
+  // Giorni TOTALI (da challengeStart a oggi) in cui l'area è stata completata
+  function categoryDaysDone(cat, start) {
+    let count = 0, d = TODAY;
+    while (d >= start) {
+      if (cat.tasks.every(t => getChecklistState(d)[t.id])) count++;
+      d = offsetDay(d, -1);
+    }
+    return count;
+  }
+
+  // Esplosione di "blocchi" stile Minecraft quando completi un'area
+  function explode(el) {
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const colors = ['#5d9c3c', '#6db017', '#80c71f', '#8b6f47', '#a6a6a6', '#c6c6c6'];
+    for (let i = 0; i < 46; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const sz = 8 + Math.random() * 16;
+      p.style.width = p.style.height = sz + 'px';
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.background = colors[i % colors.length];
+      document.body.appendChild(p);
+      const ang  = Math.random() * Math.PI * 2;
+      const dist = 120 + Math.random() * 220;
+      const dx = Math.cos(ang) * dist;
+      const dy = Math.sin(ang) * dist - 60; // spinta verso l'alto
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.random() * 540}deg)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), 850);
+    }
+  }
+
+  // Crepe pixel-art a stadi (1→4), stile texture di rottura Minecraft. Piastrella 16x16.
+  function crackTexture(stage) {
+    const stages = {
+      1: [[8,7],[8,8],[9,9]],
+      2: [[8,5],[8,6],[8,7],[8,8],[9,9],[9,10],[7,8]],
+      3: [[8,3],[8,4],[8,5],[8,6],[7,7],[8,7],[6,7],[8,8],[9,8],[10,9],[11,9],[9,10],[8,11],[8,12]],
+      4: [[8,1],[8,2],[8,3],[8,4],[7,5],[8,5],[8,6],[6,6],[5,6],[7,7],[8,7],[3,7],[4,7],[8,8],[9,8],[10,8],[11,9],[12,9],[13,9],[9,10],[10,11],[8,11],[8,12],[8,13],[8,14],[2,9],[14,10]]
+    };
+    const pts = stages[stage] || [];
+    const rects = pts.map(([x, y]) => `%3Crect x='${x}' y='${y}' width='1' height='1'/%3E`).join('');
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges' fill='%23000'%3E" + rects + "%3C/svg%3E";
+  }
+
+  // Cielo giorno/notte + uccelli
+  function initSky() {
+    const sky = document.getElementById('sky');
+    const h = new Date().getHours();
+    const isDay = h >= 6 && h < 18;   // giorno 6–18, notte 18–6 (cambia questi numeri per spostare l'orario)
+    sky.className = isDay ? 'day' : 'night';
+    if (isDay) {
+      const sun = document.createElement('div'); sun.className = 'sun'; sky.appendChild(sun);
+      for (let i = 0; i < 4; i++) {
+        const c = document.createElement('div'); c.className = 'cloud';
+        c.style.top = (8 + Math.random() * 42) + '%';
+        c.style.animationDuration = (36 + Math.random() * 30) + 's';
+        c.style.animationDelay = (-Math.random() * 50) + 's';
+        sky.appendChild(c);
+      }
+      // un uccello ogni tanto
+      const fly = () => { spawnBird(sky); setTimeout(fly, 7000 + Math.random() * 14000); };
+      setTimeout(fly, 2500);
+    } else {
+      const moon = document.createElement('div'); moon.className = 'moon'; sky.appendChild(moon);
+      for (let i = 0; i < 70; i++) {
+        const s = document.createElement('div'); s.className = 'star';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        const sz = 2 + Math.random() * 3; s.style.width = s.style.height = sz + 'px';
+        s.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
+        s.style.animationDelay = (-Math.random() * 4) + 's';
+        sky.appendChild(s);
+      }
+    }
+  }
+  function spawnBird(sky) {
+    const b = document.createElement('div'); b.className = 'bird';
+    b.style.top = (8 + Math.random() * 30) + '%';
+    const dur = 8 + Math.random() * 5;
+    b.style.animation = `fly ${dur}s linear forwards`;
+    sky.appendChild(b);
+    setTimeout(() => b.remove(), dur * 1000 + 300);
+  }
 
   // Sposta di n giorni senza passare da UTC
   function offsetDay(iso, n) {
@@ -395,28 +490,15 @@
     localStorage.setItem(dayKey(day), JSON.stringify(state));
   }
 
-  const AUTO_INC = {
-    'gruppo_samudeen': 'streakGruppo',
-    'backtest_5':      'backtest',
-    'video_challenge': 'streakVideo',
-    'video_giorno':    'videoPubblicati'
-  };
-
-  function getAutoInc() {
-    return JSON.parse(localStorage.getItem('tracker_autoinc_' + TODAY) || '{}');
-  }
-  function setAutoInc(id, val) {
-    const ai = getAutoInc();
-    if (val) ai[id] = true; else delete ai[id];
-    localStorage.setItem('tracker_autoinc_' + TODAY, JSON.stringify(ai));
-  }
-
-  // Conta i giorni consecutivi con una checkbox spuntata (compreso oggi)
-  function calcCheckboxStreak(checkboxId) {
+  // Streak di una macro-area: giorni consecutivi in cui TUTTE le sue task sono fatte.
+  // Se oggi non è ancora completa, lo streak resta quello fino a ieri (oggi è "in corso",
+  // non te lo azzera mentre la giornata è ancora aperta).
+  function calcCategoryStreak(cat) {
+    const allDone = d => cat.tasks.every(t => getChecklistState(d)[t.id]);
+    let d = allDone(TODAY) ? TODAY : offsetDay(TODAY, -1);
     let streak = 0;
-    let d = TODAY;
     for (let i = 0; i < 365; i++) {
-      if (getChecklistState(d)[checkboxId]) { streak++; d = offsetDay(d, -1); }
+      if (allDone(d)) { streak++; d = offsetDay(d, -1); }
       else break;
     }
     return streak;
@@ -459,15 +541,72 @@
     'done':        'Completata'
   };
 
+  // Prima vista: la schermata di clock-in (blocco da minare a pressione)
+  function renderClockIn(data) {
+    const dayNum = challengeDay(data.meta.challengeStart);
+    document.getElementById('app').innerHTML = `
+      <div class="clockin">
+        <div class="clockin-date">${formatDate(TODAY)}</div>
+        <div class="clockin-day">Giorno ${dayNum} della sfida</div>
+        <div class="mine-block" id="mine-block">
+          <div class="mine-label">TIENI<br>PREMUTO</div>
+          <div class="crack" id="mine-crack" style="opacity:0"></div>
+        </div>
+        <div class="clockin-phrase">${randomPhrase()}</div>
+      </div>
+    `;
+    const block = document.getElementById('mine-block');
+    const crack = document.getElementById('mine-crack');
+    const DURATION = 3000; // 3 secondi di "mining"
+    let raf = null, startTs = null, done = false, lastStage = 0;
+
+    function frame(ts) {
+      if (startTs === null) startTs = ts;
+      const p = Math.min(1, (ts - startTs) / DURATION);
+      const st = Math.max(1, Math.ceil(p * 4));   // stadio crepe 1→4
+      if (st !== lastStage) { crack.style.backgroundImage = `url("${crackTexture(st)}")`; lastStage = st; }
+      crack.style.opacity = 0.9;
+      if (p >= 1) { finish(); return; }
+      raf = requestAnimationFrame(frame);
+    }
+    function startHold() {
+      if (done) return;
+      block.classList.add('shaking');
+      startTs = null;
+      raf = requestAnimationFrame(frame);
+    }
+    function cancelHold() {
+      if (done) return;
+      cancelAnimationFrame(raf);
+      block.classList.remove('shaking');
+      crack.style.opacity = 0;            // rilasci prima → le crepe si richiudono
+      lastStage = 0;
+    }
+    function finish() {
+      done = true;
+      block.classList.remove('shaking');
+      explode(block);                     // esplosione di blocchi
+      block.style.visibility = 'hidden';
+      setClockedIn(TODAY);
+      setTimeout(() => render(data, TODAY), 450); // poi apre il tracker
+    }
+
+    block.addEventListener('mousedown', startHold);
+    block.addEventListener('mouseup', cancelHold);
+    block.addEventListener('mouseleave', cancelHold);
+    block.addEventListener('touchstart', e => { e.preventDefault(); startHold(); }, { passive: false });
+    block.addEventListener('touchend', cancelHold);
+  }
+
   function render(data, day) {
     const isToday     = day === TODAY;
     const prevDay     = findPrev(day);
     const nextDay     = isToday ? null : findNext(day);
     const checkState  = getChecklistState(day);
     const notes       = getNotes(day);
-    const counterVals = getCounters(data.counters);
-    const total       = data.dailyChecklist.length;
-    const done        = data.dailyChecklist.filter(t => checkState[t.id]).length;
+    const allTasks    = data.dailyChecklist.flatMap(c => c.tasks);
+    const total       = allTasks.length;
+    const done        = allTasks.filter(t => checkState[t.id]).length;
 
     const dayLabel = isToday ? 'Oggi'
       : day === offsetDay(TODAY, -1) ? 'Ieri'
@@ -489,100 +628,77 @@
           ${dayLabel}${!isToday ? '<span class="past-label">— sola lettura</span>' : ''}
         </div>
         <div class="checklist-progress"><span id="done-count">${done}</span> / ${total} completate</div>
+        ${data.dailyChecklist.map(cat => {
+          const catTotal = cat.tasks.length;
+          const catDone  = cat.tasks.filter(t => checkState[t.id]).length;
+          const complete = catDone === catTotal;
+          const streak   = calcCategoryStreak(cat);
+          const rank     = rankInfo(categoryDaysDone(cat, data.meta.challengeStart)).current;
+          const crackStage = catTotal ? Math.min(4, Math.round((catDone / catTotal) * 4)) : 0;
+          return `
+          <div class="cat-block${complete ? ' cat-complete' : ''}" data-cat="${cat.id}">
+            <div class="cat-title">
+              <span class="cat-name"><span class="cat-icon" style="color:${rank.color}">${ICONS[cat.id] || cat.icon}</span>${cat.label}${isToday && streak >= 1 ? ` <span class="cat-streak">🔥 ${streak}</span>` : ''}</span>
+              <span class="cat-count">${catDone}/${catTotal}</span>
+            </div>
+            <div class="card">
+              ${cat.tasks.map(t => {
+                const isDone = !!checkState[t.id];
+                const note   = notes[t.id] || '';
+                const pastClass = !isToday
+                  ? (isDone ? ' past past-done' : ' past past-missed')
+                  : '';
+                return `
+                  <div class="checklist-wrapper">
+                    <div class="checklist-item${isDone ? ' checked' : ''}${pastClass}" data-id="${t.id}">
+                      <input type="checkbox" id="chk_${t.id}" ${isDone ? 'checked' : ''} ${!isToday ? 'disabled' : ''}>
+                      <label for="chk_${t.id}">${t.label}</label>
+                      <button class="note-btn" data-note-for="${t.id}" title="${isToday ? 'Aggiungi nota' : 'Leggi nota'}">${isToday ? '✏' : '👁'}</button>
+                    </div>
+                    ${note ? `<div class="note-preview" id="preview_${t.id}">${note}</div>` : `<div class="note-preview" id="preview_${t.id}" style="display:none"></div>`}
+                    <div class="note-area" id="note_${t.id}">
+                      <textarea ${!isToday ? 'disabled' : ''} placeholder="Aggiungi una nota...">${note}</textarea>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+              <div class="crack" data-stage="${crackStage}" style="opacity:${crackStage ? '.9' : '0'}"></div>
+            </div>
+          </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="section">
+        <div class="section-title">Gradi</div>
         <div class="card">
-          ${data.dailyChecklist.map(t => {
-            const isDone = !!checkState[t.id];
-            const note   = notes[t.id] || '';
-            const pastClass = !isToday
-              ? (isDone ? ' past past-done' : ' past past-missed')
-              : '';
+          ${data.dailyChecklist.map(cat => {
+            const days = categoryDaysDone(cat, data.meta.challengeStart);
+            const { current, next } = rankInfo(days);
+            const target    = next || current;              // se sei al massimo (Argento), resta Argento
+            const threshold = next ? next.min : RANKS[1].min;
+            const pct       = Math.min(100, Math.round((days / threshold) * 100));
+            const label     = next ? `${cat.label} → ${next.name}` : `${cat.label} · ${current.name} ✓`;
             return `
-              <div class="checklist-wrapper">
-                <div class="checklist-item${isDone ? ' checked' : ''}${pastClass}" data-id="${t.id}">
-                  <input type="checkbox" id="chk_${t.id}" ${isDone ? 'checked' : ''} ${!isToday ? 'disabled' : ''}>
-                  <label for="chk_${t.id}">${t.label}</label>
-                  ${t.required ? '<span class="required-badge">Non negoziabile</span>' : ''}
-                  <button class="note-btn" data-note-for="${t.id}" title="${isToday ? 'Aggiungi nota' : 'Leggi nota'}">${isToday ? '✏' : '👁'}</button>
+              <div class="rank-item">
+                <div class="pix-slot"><span class="pix" style="color:${target.color}">${ICONS[cat.id] || ''}</span></div>
+                <div class="rank-body">
+                  <div class="rank-name">${label}</div>
+                  <div class="mp-bar-wrap"><div class="mp-bar-fill" style="width:${pct}%;background:${target.color}"></div></div>
                 </div>
-                ${note ? `<div class="note-preview" id="preview_${t.id}">${note}</div>` : `<div class="note-preview" id="preview_${t.id}" style="display:none"></div>`}
-                <div class="note-area" id="note_${t.id}">
-                  <textarea ${!isToday ? 'disabled' : ''} placeholder="Aggiungi una nota...">${note}</textarea>
-                </div>
-              </div>
-            `;
+                <div class="rank-count">${days}/${threshold}</div>
+              </div>`;
           }).join('')}
         </div>
       </div>
 
-      <div class="section">
-        <div class="section-title">Contatori</div>
-        <div class="counters-grid">
-          ${(() => {
-            const streakGruppo = calcCheckboxStreak('gruppo_samudeen');
-            const streakVideo  = calcCheckboxStreak('video_challenge');
-            const fireMap = { streakGruppo: streakGruppo, streakVideo: streakVideo };
-            return data.counters.map(c => {
-              const fire = fireMap[c.id];
-              return `
-              <div class="counter-card">
-                <div class="counter-label">${c.label}</div>
-                <div class="counter-value" id="val_${c.id}">${counterVals[c.id]}</div>
-                <div class="counter-unit">${c.unit}</div>
-                ${fire >= 2 ? `<div class="fire-streak">🔥 ${fire} di fila</div>` : ''}
-                ${isToday ? `
-                <div class="counter-controls">
-                  <button class="btn-counter" data-counter="${c.id}" data-delta="-1">−</button>
-                  <button class="btn-counter" data-counter="${c.id}" data-delta="1">+</button>
-                </div>` : ''}
-              </div>
-            `}).join('');
-          })()}
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-title">Milestone</div>
-        <div class="milestones-grid">
-          ${['trading','social'].map(group => `
-            <div>
-              <div class="milestone-col-title">${group === 'trading' ? '📈 Trading' : '🎬 Social'}</div>
-              <div class="card">
-                ${data.milestones[group].map(m => {
-                  const targets = m.targets ? Object.entries(m.targets) : [];
-                  const barsHtml = targets.map(([id, target]) => {
-                    const label   = data.counters.find(c => c.id === id)?.label || id;
-                    const current = counterVals[id] || 0;
-                    const pct     = Math.min(100, Math.round((current / target) * 100));
-                    return `
-                      <div class="mp-row">
-                        <div class="mp-label">${current}/${target}</div>
-                        <div class="mp-bar-wrap">
-                          <div class="mp-bar-fill" style="width:${pct}%"></div>
-                        </div>
-                        <div class="mp-pct">${pct}%</div>
-                      </div>`;
-                  }).join('');
-                  return `
-                    <div class="milestone-item">
-                      <div class="milestone-top">
-                        <div class="milestone-id">${m.id}</div>
-                        <div class="milestone-body">
-                          <div class="milestone-name">${m.name}</div>
-                          <div class="milestone-desc">${m.description}</div>
-                          <div class="milestone-deadline">Entro ${formatDeadline(m.deadline)}</div>
-                        </div>
-                        <span class="status-badge status-${m.status}">${STATUS_LABEL[m.status]}</span>
-                      </div>
-                      ${barsHtml ? `<div class="milestone-progress">${barsHtml}</div>` : ''}
-                    </div>`;
-                }).join('')}
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-
     `;
+
+    // Disegna le crepe pixel sui pannelli (stadio = task fatte)
+    document.querySelectorAll('.cat-block .crack').forEach(c => {
+      const st = +c.dataset.stage;
+      if (st) c.style.backgroundImage = `url("${crackTexture(st)}")`;
+    });
 
     // Navigazione
     if (prevDay) {
@@ -608,30 +724,21 @@
           if (e.target !== chk) chk.checked = !chk.checked;
 
           const state = getChecklistState(day);
-          state[id]   = chk.checked;
+          // l'area di questa task era già completa PRIMA del click?
+          const cat = data.dailyChecklist.find(c => c.tasks.some(t => t.id === id));
+          const wasComplete = cat.tasks.every(t => state[t.id]);
+
+          state[id] = chk.checked;
           setChecklistState(day, state);
-          this.classList.toggle('checked', chk.checked);
 
-          // Auto-increment contatori collegati (una sola volta per giorno)
-          if (AUTO_INC[id]) {
-            const counterId = AUTO_INC[id];
-            const ai        = getAutoInc();
-            const vals      = getCounters(data.counters);
-            if (chk.checked && !ai[id]) {
-              vals[counterId] = (vals[counterId] || 0) + 1;
-              setCounters(vals);
-              setAutoInc(id, true);
-              document.getElementById('val_' + counterId).textContent = vals[counterId];
-            } else if (!chk.checked && ai[id]) {
-              vals[counterId] = Math.max(0, (vals[counterId] || 0) - 1);
-              setCounters(vals);
-              setAutoInc(id, false);
-              document.getElementById('val_' + counterId).textContent = vals[counterId];
-            }
+          const nowComplete = cat.tasks.every(t => state[t.id]);
+          render(data, day); // ridisegna: conteggi per area, totale, verde
+
+          // appena completata l'area → esplosione 💥
+          if (!wasComplete && nowComplete) {
+            const block = document.querySelector(`[data-cat="${cat.id}"]`);
+            if (block) { block.classList.add('justdone'); explode(block); }
           }
-
-          const newDone = Object.values(state).filter(Boolean).length;
-          document.getElementById('done-count').textContent = newDone;
         });
       });
     }
@@ -666,17 +773,9 @@
       });
     }
 
-    // Counter events — solo oggi
-    document.querySelectorAll('[data-counter]').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const id   = this.dataset.counter;
-        const vals = getCounters(data.counters);
-        vals[id]   = Math.max(0, (vals[id] || 0) + parseInt(this.dataset.delta));
-        setCounters(vals);
-        document.getElementById('val_' + id).textContent = vals[id];
-      });
-    });
   }
+
+  initSky();
 
   fetch('data.json?v=' + Date.now())
     .then(r => r.json())
@@ -685,7 +784,13 @@
       if (Array.isArray(data.milestones)) {
         data.milestones = { trading: data.milestones, social: [] };
       }
-      render(data, currentDay);
+      // Scelta della vista: se oggi non hai ancora fatto clock-in → schermata di clock-in.
+      // Altrimenti (già dentro per oggi) → direttamente il tracker.
+      if (!hasClockedIn(TODAY)) {
+        renderClockIn(data);
+      } else {
+        render(data, currentDay);
+      }
     })
     .catch(err => {
       document.getElementById('app').textContent = 'Errore: ' + (err && err.message ? err.message : String(err));
