@@ -51,8 +51,11 @@ Sta in `../FORMAZIONE-AI-NOTION.md` (le settimane 1-4). Ogni sessione: guarda qu
 
 ## STATO DEL PROGETTO
 
-- **Giorno corrente:** G4 — Deploy su Netlify (prossima sessione). G3 completato il 14/06/2026.
+- **Giorno corrente:** G6 — la pagina legge i dati reali (prossima sessione). G4-G5 completati il 18/06/2026.
+- **Online:** https://mattiapatane01-arch.github.io/tracker/ (GitHub Pages, branch `main`, root `/`).
+- **Repo git:** https://github.com/mattiapatane01-arch/tracker (pubblico). Flusso update: modifico → `git add` → `git commit` → `git push` → il sito si aggiorna da solo.
 - **Server locale:** `python3 -m http.server 8081` dalla cartella tracker → `http://localhost:8081`
+- **Nota deploy:** Netlify NON usato (crediti bloccati questo mese) → si è scelto GitHub Pages, gratis. Quando tornano i crediti Netlify resta un'opzione, ma Pages funziona già.
 
 **Fatto in G1-G2:**
 - `index.html` + `data.json` — sito statico funzionante
@@ -78,4 +81,11 @@ Sta in `../FORMAZIONE-AI-NOTION.md` (le settimane 1-4). Ogni sessione: guarda qu
 - Aggiunta la descrizione del blocco `meta` (mancava)
 - Imparato il concetto: il CLAUDE.md è il "cervello" che leggo a ogni sessione; non si scrive una volta, si mantiene aggiornando lo "Stato" a fine sessione
 
-**Prossimo (G4 — Deploy):** mettere lo scheletro online su Netlify (stessa procedura di `../dashboard-percorso/`). Anche solo la pagina che si vede dal telefono.
+**Fatto in G4-G5 (18/06/2026):**
+- Inizializzato git in locale (`git init`, branch `main`, `.gitignore` per `.DS_Store` ecc.) — rete di sicurezza per lavorare senza paura
+- Creato repo pubblico su GitHub e caricato (`gh repo create ... --push`)
+- Acceso GitHub Pages → sito online e visibile dal telefono
+- G5: verificato che `data.json` regge (modello già completo: contatori reali + milestone con `targets`), aggiornato `lastUpdated` al 18/06 e pushato — primo giro completo del flusso di update
+- Concetto: git+GitHub = magazzino versionato per qualsiasi progetto; GitHub Pages = online solo per siti statici. "Andare da pro" = i piccoli passi diventano automatici, non si saltano
+
+**Prossimo (G6):** la pagina deve leggere `data.json` e mostrare i numeri veri, niente hardcoded (vedi `../FORMAZIONE-AI-NOTION.md`).
