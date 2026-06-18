@@ -5,295 +5,143 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 15px;
-      line-height: 1.5;
-      color: #e8e8e8;
-      padding: 20px 14px;
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      color: #3c3c3c;
+      background: #f7f9fc;
+      padding: 22px 14px;
       max-width: 600px;
       margin: 0 auto;
-      background: transparent;
     }
-
-    /* Cielo giorno/notte (sfondo fisso dietro a tutto) */
-    #sky { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-    #sky.day   { background: radial-gradient(130% 130% at 72% 12%, #b9e6ff, #7ec0ee 52%, #cfe9ff); }
-    #sky.night { background: radial-gradient(130% 130% at 72% 10%, #16203e, #0a0f1e 55%, #05070f); }
-
-    .star { position: absolute; background: #fff; animation: tw ease-in-out infinite; }
-    @keyframes tw { 0%,100%{opacity:.12} 50%{opacity:1} }
-    .moon { position: absolute; top: 7%; right: 13%; width: 50px; height: 50px;
-      background: #e9e7d6; box-shadow: inset -10px -10px 0 #c8c5ad, 0 0 36px rgba(233,231,214,.35); }
-    .sun  { position: absolute; top: 7%; right: 13%; width: 54px; height: 54px;
-      background: #ffe680; box-shadow: 0 0 0 6px #ffd84d, 0 0 55px rgba(255,214,77,.65); }
-
-    .cloud { position: absolute; width: 70px; height: 20px; background: #fff; opacity: .9;
-      box-shadow: 22px 8px 0 0 #fff, -20px 7px 0 0 #fff; animation: drift linear infinite; }
-    @keyframes drift { from { transform: translateX(-160px); } to { transform: translateX(108vw); } }
-
-    .bird { position: absolute; width: 6px; height: 6px; background: #33312e; pointer-events: none; }
-    .bird::before, .bird::after { content: ""; position: absolute; top: 1px; width: 9px; height: 3px; background: #33312e; }
-    .bird::before { left: -8px; transform-origin: right center; animation: flap .3s ease-in-out infinite; }
-    .bird::after  { right: -8px; transform-origin: left center;  animation: flap .3s ease-in-out infinite; }
-    @keyframes flap { 0%,100% { transform: rotate(22deg); } 50% { transform: rotate(-22deg); } }
-    @keyframes fly  { from { transform: translate(-40px,0); } to { transform: translate(104vw,-30px); } }
 
     /* Header */
-    .header { margin-bottom: 22px; text-align: center; }
-    .header h1 {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 22px;
-      color: #fff;
-      text-shadow: 3px 3px 0 #000, 0 0 12px rgba(128,199,31,0.3);
+    .header { text-align: center; margin-bottom: 18px; }
+    .header h1 { font-size: 26px; font-weight: 900; color: #1cb0f6; }
+    .nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 6px; }
+    .date { font-size: 14px; font-weight: 700; color: #afafaf; }
+    .btn-nav {
+      width: 30px; height: 30px; border: 2px solid #e5e5e5; border-bottom-width: 4px;
+      border-radius: 12px; background: #fff; color: #afafaf; font-size: 14px; font-weight: 800;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .header .date { font-size: 12px; color: #9ab07f; margin-top: 4px; }
+    .btn-nav:active:not(:disabled) { border-bottom-width: 2px; transform: translateY(2px); }
+    .btn-nav:disabled { opacity: 0.35; cursor: default; }
+    .past-label { color: #ff9600; margin-left: 6px; font-size: 13px; }
 
-    .section { margin-bottom: 24px; }
+    .section { margin-bottom: 26px; }
     .section-title {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 9px;
-      color: #7e9663;
-      margin-bottom: 12px;
-      line-height: 1.6;
+      font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #afafaf; margin-bottom: 12px;
     }
-    .past-label { color: #c9802f; margin-left: 6px; }
+    .checklist-progress { font-size: 14px; font-weight: 700; color: #afafaf; margin-bottom: 14px; text-align: right; }
+    .checklist-progress span { color: #58cc02; }
 
-    .checklist-progress {
-      font-size: 12px; color: #9ab07f; margin-bottom: 12px; text-align: right;
-    }
-    .checklist-progress span { color: #cdebac; font-weight: 700; }
-
-    /* Pannello stile inventario Minecraft */
+    /* Card */
     .card {
-      background: #c6c6c6;
-      border: 3px solid #2b2b2b;
-      box-shadow: inset 3px 3px 0 #fefefe, inset -3px -3px 0 #8a8a8a;
-      padding: 8px 12px;
+      background: #fff; border: 2px solid #e5e5e5; border-bottom-width: 4px;
+      border-radius: 18px; padding: 8px 16px;
     }
 
     /* Macro-aree */
-    .cat-block { margin-bottom: 20px; }
+    .cat-block { margin-bottom: 16px; }
     .cat-block:last-child { margin-bottom: 0; }
-    .cat-title {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 8px; margin-bottom: 10px;
-    }
+    .cat-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
     .cat-name {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 12px; color: #fff; line-height: 1.5;
-      text-shadow: 2px 2px 0 #000; flex: 1;
-      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      flex: 1; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      font-size: 18px; font-weight: 800; color: #4b4b4b;
     }
-    .cat-emoji {
-      display: inline-block; font-size: 22px;
-      animation: bob 1.7s ease-in-out infinite;
-    }
-    @keyframes bob {
-      0%, 100% { transform: translateY(0) rotate(-5deg); }
-      50%      { transform: translateY(-5px) rotate(5deg); }
-    }
-    .cat-count {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 10px; color: #d9d9d9; flex-shrink: 0; text-shadow: 2px 2px 0 #000;
-    }
-    .cat-streak { color: #ffcb3d; margin-left: 4px; }
-    .cat-block.cat-complete .cat-name,
-    .cat-block.cat-complete .cat-count { color: #80c71f; }
+    .cat-emoji { font-size: 22px; }
+    .cat-medal { font-size: 18px; }
+    .cat-streak { background: #fff0e6; color: #ff9600; font-weight: 800; font-size: 13px; padding: 3px 9px; border-radius: 20px; }
+    .cat-count { background: #f0f0f0; color: #afafaf; font-weight: 800; font-size: 13px; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
+    .cat-block.cat-complete .card { border-color: #58cc02; background: #f7fff0; }
+    .cat-block.cat-complete .cat-name { color: #58a700; }
 
     /* Riga task */
     .checklist-item {
-      display: flex; align-items: center; gap: 12px;
-      padding: 9px 4px; border-bottom: 2px solid #b0b0b0;
-      cursor: pointer; user-select: none;
+      display: flex; align-items: center; gap: 13px; padding: 11px 2px;
+      border-bottom: 2px solid #f0f0f0; cursor: pointer; user-select: none;
     }
-    .checklist-item:last-child { border-bottom: none; }
-
-    /* Checkbox come "slot" dell'inventario */
+    .checklist-item:last-of-type { border-bottom: none; }
     .checklist-item input[type="checkbox"] {
       appearance: none; -webkit-appearance: none;
-      width: 22px; height: 22px; flex-shrink: 0; cursor: pointer; position: relative;
-      background: #8b8b8b; border: 2px solid #373737;
-      box-shadow: inset 2px 2px 0 #6f6f6f, inset -2px -2px 0 #a6a6a6;
+      width: 26px; height: 26px; flex-shrink: 0; cursor: pointer; position: relative;
+      border: 2px solid #e5e5e5; border-radius: 50%; background: #fff;
     }
-    .checklist-item input[type="checkbox"]:checked {
-      background: #5d9c3c;
-      box-shadow: inset 2px 2px 0 #6fb84a, inset -2px -2px 0 #437026;
-    }
+    .checklist-item input[type="checkbox"]:checked { background: #58cc02; border-color: #58cc02; }
     .checklist-item input[type="checkbox"]:checked::after {
-      content: ""; position: absolute; left: 6px; top: 6px;
-      width: 8px; height: 8px; background: #eafff0; box-shadow: 2px 2px 0 #2b5016;
+      content: ""; position: absolute; left: 8px; top: 6px; width: 8px; height: 12px;
+      border-right: 3px solid #fff; border-bottom: 3px solid #fff; transform: rotate(45deg);
     }
-    .checklist-item label {
-      cursor: pointer; flex: 1; color: #2b2b2b; font-size: 15px; font-weight: 600;
-    }
-    .checklist-item.checked label { color: #6a6a6a; text-decoration: line-through; }
+    .checklist-item label { flex: 1; cursor: pointer; color: #4b4b4b; font-size: 16px; font-weight: 700; }
+    .checklist-item.checked label { color: #afafaf; text-decoration: line-through; }
 
     /* Giorni passati */
     .checklist-item.past { pointer-events: none; }
     .checklist-item.past label { cursor: default; }
-    .checklist-item.past-done label   { color: #2e7d18; }
-    .checklist-item.past-missed label { color: #b23b3b; }
+    .checklist-item.past-done label   { color: #58cc02; }
+    .checklist-item.past-missed label { color: #ff4b4b; }
     .checklist-item.past input { opacity: 0.5; }
 
     /* Note */
-    .note-btn {
-      background: none; border: none; color: #6a6a6a; cursor: pointer;
-      font-size: 14px; padding: 2px 4px; flex-shrink: 0; line-height: 1;
-    }
-    .note-btn:hover { color: #2b2b2b; }
-    .note-preview {
-      font-size: 12px; color: #5a5a5a; padding: 2px 0 6px 34px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .note-area { display: none; padding: 4px 0 10px 34px; }
+    .note-btn { background: none; border: none; color: #cfcfcf; cursor: pointer; font-size: 15px; padding: 2px 4px; flex-shrink: 0; }
+    .note-btn:hover { color: #888; }
+    .note-preview { font-size: 13px; color: #afafaf; padding: 0 0 8px 39px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .note-area { display: none; padding: 4px 0 12px 39px; }
     .note-area.open { display: block; }
     .note-area textarea {
-      width: 100%; background: #ededed; border: 2px solid #373737;
-      box-shadow: inset 2px 2px 0 #b8b8b8;
-      color: #2b2b2b; font-size: 13px; font-family: inherit; line-height: 1.5;
-      padding: 8px 10px; resize: none; height: 56px; outline: none;
+      width: 100%; background: #f7f9fc; border: 2px solid #e5e5e5; border-radius: 12px;
+      color: #4b4b4b; font-size: 14px; font-family: inherit; font-weight: 600; line-height: 1.5;
+      padding: 9px 12px; resize: none; height: 58px; outline: none;
     }
-    .note-area textarea:focus { border-color: #5d9c3c; }
+    .note-area textarea:focus { border-color: #1cb0f6; }
     .note-area textarea:disabled { opacity: 0.6; cursor: default; }
 
-    /* Navigazione giorni */
-    .nav { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
-    .btn-nav {
-      background: #7a7a7a; border: 2px solid #2b2b2b;
-      box-shadow: inset 2px 2px 0 #9a9a9a, inset -2px -2px 0 #565656;
-      color: #fff; width: 30px; height: 30px; font-size: 14px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .btn-nav:active:not(:disabled) { box-shadow: inset -2px -2px 0 #9a9a9a, inset 2px 2px 0 #565656; }
-    .btn-nav:disabled { opacity: 0.3; cursor: default; }
-    .date { font-size: 12px; color: #cdebac; font-weight: 600; }
-
-    /* Milestone */
-    .milestones-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .milestone-col-title {
-      font-family: 'Press Start 2P', monospace; font-size: 9px;
-      color: #cdebac; margin-bottom: 8px; text-shadow: 2px 2px 0 #000;
-    }
-    .milestone-item { padding: 10px 0; border-bottom: 2px solid #b0b0b0; }
-    .milestone-item:last-child { border-bottom: none; }
-    .milestone-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
-    .milestone-id {
-      font-family: 'Press Start 2P', monospace; font-size: 9px; color: #5d5d5d;
-      min-width: 30px; padding-top: 2px; flex-shrink: 0;
-    }
-    .milestone-body { flex: 1; }
-    .milestone-name { font-size: 13px; font-weight: 700; color: #2b2b2b; margin-bottom: 2px; }
-    .milestone-desc { font-size: 11px; color: #5a5a5a; margin-bottom: 3px; }
-    .milestone-deadline { font-size: 10px; color: #7a7a7a; }
-    .status-badge {
-      font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      padding: 3px 6px; flex-shrink: 0; margin-top: 2px; border: 2px solid;
-    }
-    .status-locked      { color: #6a6a6a; border-color: #8a8a8a; }
-    .status-in-progress { color: #b5860b; border-color: #b5860b; }
-    .status-done        { color: #2e7d18; border-color: #2e7d18; }
-    .milestone-progress { margin-top: 6px; }
-    .mp-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-    .mp-label { font-size: 10px; color: #5a5a5a; min-width: 64px; flex-shrink: 0; }
-    .mp-bar-wrap {
-      flex: 1; height: 12px; background: #373737; border: 2px solid #232323; padding: 2px;
-    }
-    .mp-bar-fill {
-      height: 100%; transition: width 0.4s ease;
-      background: repeating-linear-gradient(90deg,#80c71f 0,#80c71f 5px,#6db017 5px,#6db017 7px);
-    }
-    .mp-pct { font-size: 10px; color: #5a5a5a; min-width: 28px; text-align: right; flex-shrink: 0; }
-
-    /* Icone pixel-art + gradi */
-    .cat-icon, .pix { display: inline-block; line-height: 0; }
-    .cat-icon svg { width: 26px; height: 26px; image-rendering: pixelated; filter: drop-shadow(2px 2px 0 rgba(0,0,0,.5)); }
-    .pix svg { width: 20px; height: 20px; image-rendering: pixelated; }
-    .pix-slot {
-      width: 32px; height: 32px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      background: #8b8b8b; border: 2px solid #373737;
-      box-shadow: inset 2px 2px 0 #6f6f6f, inset -2px -2px 0 #a6a6a6;
-    }
-    .rank-item { display: flex; align-items: center; gap: 12px; padding: 9px 2px; border-bottom: 2px solid #b0b0b0; }
+    /* Gradi */
+    .rank-item { display: flex; align-items: center; gap: 13px; padding: 11px 2px; border-bottom: 2px solid #f0f0f0; }
     .rank-item:last-child { border-bottom: none; }
+    .rank-medal {
+      width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; font-size: 20px;
+      background: #f0f0f0;
+    }
     .rank-body { flex: 1; }
-    .rank-name { font-size: 12px; font-weight: 700; color: #2b2b2b; margin-bottom: 5px; }
-    .rank-count { font-family: 'Press Start 2P', monospace; font-size: 9px; color: #5a5a5a; flex-shrink: 0; }
+    .rank-name { font-size: 14px; font-weight: 800; color: #4b4b4b; margin-bottom: 5px; }
+    .bar { height: 14px; border-radius: 10px; background: #e5e5e5; overflow: hidden; }
+    .fill { height: 100%; border-radius: 10px; background: #58cc02; transition: width 0.4s ease; }
+    .rank-count { font-size: 13px; font-weight: 800; color: #afafaf; flex-shrink: 0; }
 
-    /* Schermata di clock-in */
+    /* Clock-in */
     .clockin {
-      min-height: 86vh; display: flex; flex-direction: column;
+      min-height: 82vh; display: flex; flex-direction: column;
       align-items: center; justify-content: center; text-align: center; gap: 10px;
     }
-    .clockin-date {
-      font-family: 'Press Start 2P', monospace; font-size: 10px;
-      color: #9ab07f; text-shadow: 2px 2px 0 #000; line-height: 1.6;
-    }
-    .clockin-day {
-      font-family: 'Press Start 2P', monospace; font-size: 18px;
-      color: #fff; text-shadow: 3px 3px 0 #000; line-height: 1.6; margin-bottom: 8px;
-    }
+    .clockin-date { font-size: 14px; font-weight: 700; color: #afafaf; }
+    .clockin-day { font-size: 28px; font-weight: 900; color: #1cb0f6; }
     .btn-clockin {
-      font-family: 'Press Start 2P', monospace; font-size: 14px;
-      margin-top: 8px; padding: 18px 34px; cursor: pointer; color: #fff;
-      background: #5d9c3c; border: 3px solid #2b2b2b;
-      box-shadow: inset 3px 3px 0 #6fb84a, inset -3px -3px 0 #437026;
-      text-shadow: 2px 2px 0 #2b5016;
+      margin-top: 18px; padding: 16px 48px; cursor: pointer;
+      font-family: inherit; font-size: 17px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+      color: #fff; background: #58cc02; border: none; border-bottom: 5px solid #58a700; border-radius: 16px;
     }
-    .btn-clockin:active { box-shadow: inset -3px -3px 0 #6fb84a, inset 3px 3px 0 #437026; }
-    .clockin-phrase {
-      font-size: 14px; color: #cdebac; font-style: italic;
-      margin-top: 18px; max-width: 280px; min-height: 40px;
-    }
+    .btn-clockin:active { border-bottom-width: 2px; transform: translateY(3px); }
+    .clockin-phrase { font-size: 15px; font-weight: 700; color: #afafaf; font-style: italic; margin-top: 20px; max-width: 280px; min-height: 42px; }
 
-    /* Blocco da minare (Start a pressione) */
-    .mine-block {
-      position: relative; width: 150px; height: 150px; margin-top: 8px;
-      cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
-      background: #7a9a52; border: 4px solid #2b2b2b;
-      box-shadow: inset 4px 4px 0 #8fb061, inset -4px -4px 0 #5e7a3e;
-      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    /* Coriandoli (festeggiamento al completamento) */
+    .confetti {
+      position: fixed; pointer-events: none; z-index: 999; opacity: 1;
+      transition: transform 0.8s ease-out, opacity 0.8s ease-out;
     }
-    .mine-label {
-      font-family: 'Press Start 2P', monospace; font-size: 13px; color: #20300f;
-      text-align: center; line-height: 1.9; pointer-events: none; text-shadow: 1px 1px 0 #a7c97a;
-    }
-    .mine-block.shaking { animation: shake 0.12s linear infinite; }
-    @keyframes shake {
-      0%,100% { transform: translate(0,0); }
-      25% { transform: translate(-2px,1px); }
-      50% { transform: translate(2px,-1px); }
-      75% { transform: translate(-1px,-2px); }
-    }
-
-    /* Esplosione di "blocchi" al completamento di un'area */
-    .particle {
-      position: fixed; width: 12px; height: 12px; pointer-events: none; z-index: 999;
-      opacity: 1; transition: transform 0.85s ease-out, opacity 0.85s ease-out;
-    }
-    /* Crepe sul blocco (più task fatte = più visibili) */
-    .cat-block .card { position: relative; overflow: hidden; }
-    .crack {
-      position: absolute; inset: 0; pointer-events: none; mix-blend-mode: multiply;
-      background-repeat: repeat; background-size: 40px 40px;
-      image-rendering: pixelated; transition: opacity 0.12s ease;
-    }
-    @keyframes panelpop {
-      0% { transform: scale(1); }
-      35% { transform: scale(1.04); }
-      100% { transform: scale(1); }
-    }
-    .cat-block.justdone .card { animation: panelpop 0.45s ease; }
+    @keyframes pop { 0% { transform: scale(1); } 35% { transform: scale(1.04); } 100% { transform: scale(1); } }
+    .cat-block.justdone .card { animation: pop 0.4s ease; }
   </style>
 </head>
 <body>
 
-<div id="sky"></div>
 <div id="app">Caricamento...</div>
 
 <script>
@@ -302,22 +150,14 @@
     const d = new Date();
     return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
   })();
-  const COUNTERS_KEY = 'tracker_counters';
   let currentDay = TODAY;
 
   function dayKey(day) { return 'tracker_checklist_' + day; }
 
-  // --- Clock-in (prima schermata della giornata) ---
-  // Stessa idea dell'auto-increment: una chiave diversa ogni giorno.
-  // Nuovo giorno = chiave assente = la schermata ricompare da sola (reset a mezzanotte gratis).
-  function hasClockedIn(day) {
-    return !!localStorage.getItem('tracker_clockin_' + day);
-  }
-  function setClockedIn(day) {
-    localStorage.setItem('tracker_clockin_' + day, new Date().toISOString());
-  }
+  // --- Clock-in: una chiave per giorno (nuovo giorno = ricompare, reset a mezzanotte gratis) ---
+  function hasClockedIn(day) { return !!localStorage.getItem('tracker_clockin_' + day); }
+  function setClockedIn(day) { localStorage.setItem('tracker_clockin_' + day, new Date().toISOString()); }
 
-  // Frasi motivazionali: ne pesco una a caso ogni volta che mostro la schermata.
   const PHRASES = [
     'Un passo avanti a ieri.',
     'Conta solo presentarsi, anche oggi.',
@@ -328,129 +168,13 @@
     'La disciplina di oggi è la libertà di domani.',
     'Non devi essere perfetto, devi esserci.'
   ];
-  function randomPhrase() {
-    return PHRASES[Math.floor(Math.random() * PHRASES.length)];
-  }
+  function randomPhrase() { return PHRASES[Math.floor(Math.random() * PHRASES.length)]; }
 
-  // Numero del giorno della challenge (da meta.challengeStart)
   function challengeDay(start) {
     const ms = Date.parse(TODAY + 'T00:00:00') - Date.parse(start + 'T00:00:00');
-    return Math.floor(ms / 86400000) + 1; // il primo giorno è "1"
+    return Math.floor(ms / 86400000) + 1;
   }
 
-  // Icone pixel-art per area (monocrome: il colore lo decide il grado)
-  const ICONS = {
-    trading: '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="10" width="3" height="5"/><rect x="6" y="6" width="3" height="9"/><rect x="11" y="2" width="3" height="13"/></svg>',
-    social:  '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="2" width="2" height="12"/><rect x="6" y="3" width="2" height="10"/><rect x="8" y="4" width="2" height="8"/><rect x="10" y="5" width="2" height="6"/><rect x="12" y="6" width="2" height="4"/></svg>',
-    ai:      '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="4" width="8" height="8"/><rect x="6" y="1" width="1" height="2"/><rect x="9" y="1" width="1" height="2"/><rect x="6" y="13" width="1" height="2"/><rect x="9" y="13" width="1" height="2"/><rect x="1" y="6" width="2" height="1"/><rect x="1" y="9" width="2" height="1"/><rect x="13" y="6" width="2" height="1"/><rect x="13" y="9" width="2" height="1"/></svg>',
-    studio_extra: '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="5" height="12"/><rect x="9" y="2" width="5" height="12"/><rect x="7" y="3" width="2" height="10"/></svg>'
-  };
-
-  // Scala dei gradi (per ora solo Bronzo e Argento; Oro 100 e Diamante 200 più avanti)
-  const RANKS = [
-    { name: 'Bronzo',  min: 15, color: '#cd7f32' },
-    { name: 'Argento', min: 50, color: '#c8ccd2' }
-  ];
-  const RANK_LOCKED = '#7a7a7a'; // grigio: non ancora raggiunto
-
-  // Grado attuale + prossimo obiettivo, dati i giorni completati
-  function rankInfo(days) {
-    if (days >= 50) return { current: RANKS[1], next: null };
-    if (days >= 15) return { current: RANKS[0], next: RANKS[1] };
-    return { current: { name: null, color: RANK_LOCKED }, next: RANKS[0] };
-  }
-
-  // Giorni TOTALI (da challengeStart a oggi) in cui l'area è stata completata
-  function categoryDaysDone(cat, start) {
-    let count = 0, d = TODAY;
-    while (d >= start) {
-      if (cat.tasks.every(t => getChecklistState(d)[t.id])) count++;
-      d = offsetDay(d, -1);
-    }
-    return count;
-  }
-
-  // Esplosione di "blocchi" stile Minecraft quando completi un'area
-  function explode(el) {
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    const colors = ['#5d9c3c', '#6db017', '#80c71f', '#8b6f47', '#a6a6a6', '#c6c6c6'];
-    for (let i = 0; i < 46; i++) {
-      const p = document.createElement('div');
-      p.className = 'particle';
-      const sz = 8 + Math.random() * 16;
-      p.style.width = p.style.height = sz + 'px';
-      p.style.left = cx + 'px';
-      p.style.top = cy + 'px';
-      p.style.background = colors[i % colors.length];
-      document.body.appendChild(p);
-      const ang  = Math.random() * Math.PI * 2;
-      const dist = 120 + Math.random() * 220;
-      const dx = Math.cos(ang) * dist;
-      const dy = Math.sin(ang) * dist - 60; // spinta verso l'alto
-      requestAnimationFrame(() => {
-        p.style.transform = `translate(${dx}px, ${dy}px) rotate(${Math.random() * 540}deg)`;
-        p.style.opacity = '0';
-      });
-      setTimeout(() => p.remove(), 850);
-    }
-  }
-
-  // Crepe pixel-art a stadi (1→4), stile texture di rottura Minecraft. Piastrella 16x16.
-  function crackTexture(stage) {
-    const stages = {
-      1: [[8,7],[8,8],[9,9]],
-      2: [[8,5],[8,6],[8,7],[8,8],[9,9],[9,10],[7,8]],
-      3: [[8,3],[8,4],[8,5],[8,6],[7,7],[8,7],[6,7],[8,8],[9,8],[10,9],[11,9],[9,10],[8,11],[8,12]],
-      4: [[8,1],[8,2],[8,3],[8,4],[7,5],[8,5],[8,6],[6,6],[5,6],[7,7],[8,7],[3,7],[4,7],[8,8],[9,8],[10,8],[11,9],[12,9],[13,9],[9,10],[10,11],[8,11],[8,12],[8,13],[8,14],[2,9],[14,10]]
-    };
-    const pts = stages[stage] || [];
-    const rects = pts.map(([x, y]) => `%3Crect x='${x}' y='${y}' width='1' height='1'/%3E`).join('');
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges' fill='%23000'%3E" + rects + "%3C/svg%3E";
-  }
-
-  // Cielo giorno/notte + uccelli
-  function initSky() {
-    const sky = document.getElementById('sky');
-    const h = new Date().getHours();
-    const isDay = h >= 6 && h < 18;   // giorno 6–18, notte 18–6 (cambia questi numeri per spostare l'orario)
-    sky.className = isDay ? 'day' : 'night';
-    if (isDay) {
-      const sun = document.createElement('div'); sun.className = 'sun'; sky.appendChild(sun);
-      for (let i = 0; i < 4; i++) {
-        const c = document.createElement('div'); c.className = 'cloud';
-        c.style.top = (8 + Math.random() * 42) + '%';
-        c.style.animationDuration = (36 + Math.random() * 30) + 's';
-        c.style.animationDelay = (-Math.random() * 50) + 's';
-        sky.appendChild(c);
-      }
-      // un uccello ogni tanto
-      const fly = () => { spawnBird(sky); setTimeout(fly, 7000 + Math.random() * 14000); };
-      setTimeout(fly, 2500);
-    } else {
-      const moon = document.createElement('div'); moon.className = 'moon'; sky.appendChild(moon);
-      for (let i = 0; i < 70; i++) {
-        const s = document.createElement('div'); s.className = 'star';
-        s.style.left = Math.random() * 100 + '%';
-        s.style.top = Math.random() * 100 + '%';
-        const sz = 2 + Math.random() * 3; s.style.width = s.style.height = sz + 'px';
-        s.style.animationDuration = (1.5 + Math.random() * 2.5) + 's';
-        s.style.animationDelay = (-Math.random() * 4) + 's';
-        sky.appendChild(s);
-      }
-    }
-  }
-  function spawnBird(sky) {
-    const b = document.createElement('div'); b.className = 'bird';
-    b.style.top = (8 + Math.random() * 30) + '%';
-    const dur = 8 + Math.random() * 5;
-    b.style.animation = `fly ${dur}s linear forwards`;
-    sky.appendChild(b);
-    setTimeout(() => b.remove(), dur * 1000 + 300);
-  }
-
-  // Sposta di n giorni senza passare da UTC
   function offsetDay(iso, n) {
     const [y, m, d] = iso.split('-').map(Number);
     const date = new Date(y, m - 1, d);
@@ -462,151 +186,104 @@
     const s = localStorage.getItem(dayKey(day));
     return !!(s && Object.keys(JSON.parse(s)).length > 0);
   }
-
-  // Giorno precedente con dati (salta i vuoti)
   function findPrev(day) {
     let d = offsetDay(day, -1);
-    for (let i = 0; i < 365; i++) {
-      if (hasData(d)) return d;
-      d = offsetDay(d, -1);
-    }
+    for (let i = 0; i < 365; i++) { if (hasData(d)) return d; d = offsetDay(d, -1); }
     return null;
   }
-
-  // Giorno successivo con dati, o TODAY se è il più vicino
   function findNext(day) {
     let d = offsetDay(day, 1);
-    while (d <= TODAY) {
-      if (d === TODAY || hasData(d)) return d;
-      d = offsetDay(d, 1);
-    }
+    while (d <= TODAY) { if (d === TODAY || hasData(d)) return d; d = offsetDay(d, 1); }
     return null;
   }
 
-  function getChecklistState(day) {
-    return JSON.parse(localStorage.getItem(dayKey(day)) || '{}');
-  }
-  function setChecklistState(day, state) {
-    localStorage.setItem(dayKey(day), JSON.stringify(state));
-  }
+  function getChecklistState(day) { return JSON.parse(localStorage.getItem(dayKey(day)) || '{}'); }
+  function setChecklistState(day, state) { localStorage.setItem(dayKey(day), JSON.stringify(state)); }
 
-  // Streak di una macro-area: giorni consecutivi in cui TUTTE le sue task sono fatte.
-  // Se oggi non è ancora completa, lo streak resta quello fino a ieri (oggi è "in corso",
-  // non te lo azzera mentre la giornata è ancora aperta).
+  // Streak di un'area: giorni consecutivi in cui TUTTE le sue task sono fatte.
   function calcCategoryStreak(cat) {
     const allDone = d => cat.tasks.every(t => getChecklistState(d)[t.id]);
     let d = allDone(TODAY) ? TODAY : offsetDay(TODAY, -1);
     let streak = 0;
-    for (let i = 0; i < 365; i++) {
-      if (allDone(d)) { streak++; d = offsetDay(d, -1); }
-      else break;
-    }
+    for (let i = 0; i < 365; i++) { if (allDone(d)) { streak++; d = offsetDay(d, -1); } else break; }
     return streak;
   }
 
-  function getNotes(day) {
-    return JSON.parse(localStorage.getItem('tracker_notes_' + day) || '{}');
+  // Giorni TOTALI completati di un'area (da challengeStart a oggi)
+  function categoryDaysDone(cat, start) {
+    let count = 0, d = TODAY;
+    while (d >= start) { if (cat.tasks.every(t => getChecklistState(d)[t.id])) count++; d = offsetDay(d, -1); }
+    return count;
   }
+
+  // Gradi (per ora Bronzo 15 e Argento 50; Oro 100 e Diamante 200 più avanti)
+  const RANKS = [
+    { name: 'Bronzo',  min: 15, medal: '🥉' },
+    { name: 'Argento', min: 50, medal: '🥈' }
+  ];
+  function rankInfo(days) {
+    if (days >= 50) return { current: RANKS[1], next: null };
+    if (days >= 15) return { current: RANKS[0], next: RANKS[1] };
+    return { current: null, next: RANKS[0] };
+  }
+
+  function getNotes(day) { return JSON.parse(localStorage.getItem('tracker_notes_' + day) || '{}'); }
   function saveNote(day, id, text) {
-    const notes = getNotes(day);
-    notes[id] = text;
+    const notes = getNotes(day); notes[id] = text;
     localStorage.setItem('tracker_notes_' + day, JSON.stringify(notes));
-  }
-  function getCounters(defaults) {
-    const stored = localStorage.getItem(COUNTERS_KEY);
-    if (stored) return JSON.parse(stored);
-    const initial = {};
-    defaults.forEach(c => { initial[c.id] = c.value; });
-    localStorage.setItem(COUNTERS_KEY, JSON.stringify(initial));
-    return initial;
-  }
-  function setCounters(vals) {
-    localStorage.setItem(COUNTERS_KEY, JSON.stringify(vals));
   }
 
   function formatDate(iso) {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('it-IT', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-    });
-  }
-  function formatDeadline(iso) {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('it-IT', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    });
+    return new Date(iso + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
 
-  const STATUS_LABEL = {
-    'locked':      'Bloccata',
-    'in-progress': 'In corso',
-    'done':        'Completata'
-  };
+  // Coriandoli quando completi un'area
+  function celebrate(el) {
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const colors = ['#58cc02', '#1cb0f6', '#ffc800', '#ff4b4b', '#ce82ff', '#ff9600'];
+    for (let i = 0; i < 42; i++) {
+      const p = document.createElement('div'); p.className = 'confetti';
+      const sz = 8 + Math.random() * 8; p.style.width = p.style.height = sz + 'px';
+      p.style.left = cx + 'px'; p.style.top = cy + 'px';
+      p.style.background = colors[i % colors.length];
+      if (Math.random() < 0.5) p.style.borderRadius = '50%';
+      document.body.appendChild(p);
+      const ang = Math.random() * Math.PI * 2, dist = 90 + Math.random() * 170;
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${Math.cos(ang) * dist}px, ${Math.sin(ang) * dist - 50}px) rotate(${Math.random() * 540}deg)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), 800);
+    }
+  }
 
-  // Prima vista: la schermata di clock-in (blocco da minare a pressione)
+  // Prima vista: clock-in
   function renderClockIn(data) {
     const dayNum = challengeDay(data.meta.challengeStart);
     document.getElementById('app').innerHTML = `
       <div class="clockin">
         <div class="clockin-date">${formatDate(TODAY)}</div>
-        <div class="clockin-day">Giorno ${dayNum} della sfida</div>
-        <div class="mine-block" id="mine-block">
-          <div class="mine-label">TIENI<br>PREMUTO</div>
-          <div class="crack" id="mine-crack" style="opacity:0"></div>
-        </div>
+        <div class="clockin-day">Giorno ${dayNum}</div>
+        <button class="btn-clockin" id="btn-clockin">Inizia</button>
         <div class="clockin-phrase">${randomPhrase()}</div>
       </div>
     `;
-    const block = document.getElementById('mine-block');
-    const crack = document.getElementById('mine-crack');
-    const DURATION = 3000; // 3 secondi di "mining"
-    let raf = null, startTs = null, done = false, lastStage = 0;
-
-    function frame(ts) {
-      if (startTs === null) startTs = ts;
-      const p = Math.min(1, (ts - startTs) / DURATION);
-      const st = Math.max(1, Math.ceil(p * 4));   // stadio crepe 1→4
-      if (st !== lastStage) { crack.style.backgroundImage = `url("${crackTexture(st)}")`; lastStage = st; }
-      crack.style.opacity = 0.9;
-      if (p >= 1) { finish(); return; }
-      raf = requestAnimationFrame(frame);
-    }
-    function startHold() {
-      if (done) return;
-      block.classList.add('shaking');
-      startTs = null;
-      raf = requestAnimationFrame(frame);
-    }
-    function cancelHold() {
-      if (done) return;
-      cancelAnimationFrame(raf);
-      block.classList.remove('shaking');
-      crack.style.opacity = 0;            // rilasci prima → le crepe si richiudono
-      lastStage = 0;
-    }
-    function finish() {
-      done = true;
-      block.classList.remove('shaking');
-      explode(block);                     // esplosione di blocchi
-      block.style.visibility = 'hidden';
+    document.getElementById('btn-clockin').addEventListener('click', () => {
       setClockedIn(TODAY);
-      setTimeout(() => render(data, TODAY), 450); // poi apre il tracker
-    }
-
-    block.addEventListener('mousedown', startHold);
-    block.addEventListener('mouseup', cancelHold);
-    block.addEventListener('mouseleave', cancelHold);
-    block.addEventListener('touchstart', e => { e.preventDefault(); startHold(); }, { passive: false });
-    block.addEventListener('touchend', cancelHold);
+      render(data, TODAY);
+    });
   }
 
   function render(data, day) {
-    const isToday     = day === TODAY;
-    const prevDay     = findPrev(day);
-    const nextDay     = isToday ? null : findNext(day);
-    const checkState  = getChecklistState(day);
-    const notes       = getNotes(day);
-    const allTasks    = data.dailyChecklist.flatMap(c => c.tasks);
-    const total       = allTasks.length;
-    const done        = allTasks.filter(t => checkState[t.id]).length;
+    const isToday    = day === TODAY;
+    const prevDay    = findPrev(day);
+    const nextDay    = isToday ? null : findNext(day);
+    const checkState = getChecklistState(day);
+    const notes      = getNotes(day);
+    const allTasks   = data.dailyChecklist.flatMap(c => c.tasks);
+    const total      = allTasks.length;
+    const done       = allTasks.filter(t => checkState[t.id]).length;
 
     const dayLabel = isToday ? 'Oggi'
       : day === offsetDay(TODAY, -1) ? 'Ieri'
@@ -624,9 +301,7 @@
       </div>
 
       <div class="section">
-        <div class="section-title">
-          ${dayLabel}${!isToday ? '<span class="past-label">— sola lettura</span>' : ''}
-        </div>
+        <div class="section-title">${dayLabel}${!isToday ? '<span class="past-label">— sola lettura</span>' : ''}</div>
         <div class="checklist-progress"><span id="done-count">${done}</span> / ${total} completate</div>
         ${data.dailyChecklist.map(cat => {
           const catTotal = cat.tasks.length;
@@ -634,20 +309,21 @@
           const complete = catDone === catTotal;
           const streak   = calcCategoryStreak(cat);
           const rank     = rankInfo(categoryDaysDone(cat, data.meta.challengeStart)).current;
-          const crackStage = catTotal ? Math.min(4, Math.round((catDone / catTotal) * 4)) : 0;
           return `
           <div class="cat-block${complete ? ' cat-complete' : ''}" data-cat="${cat.id}">
             <div class="cat-title">
-              <span class="cat-name"><span class="cat-icon" style="color:${rank.color}">${ICONS[cat.id] || cat.icon}</span>${cat.label}${isToday && streak >= 1 ? ` <span class="cat-streak">🔥 ${streak}</span>` : ''}</span>
+              <span class="cat-name">
+                <span class="cat-emoji">${cat.icon}</span>${cat.label}
+                ${rank ? `<span class="cat-medal">${rank.medal}</span>` : ''}
+                ${isToday && streak >= 1 ? `<span class="cat-streak">🔥 ${streak}</span>` : ''}
+              </span>
               <span class="cat-count">${catDone}/${catTotal}</span>
             </div>
             <div class="card">
               ${cat.tasks.map(t => {
                 const isDone = !!checkState[t.id];
                 const note   = notes[t.id] || '';
-                const pastClass = !isToday
-                  ? (isDone ? ' past past-done' : ' past past-missed')
-                  : '';
+                const pastClass = !isToday ? (isDone ? ' past past-done' : ' past past-missed') : '';
                 return `
                   <div class="checklist-wrapper">
                     <div class="checklist-item${isDone ? ' checked' : ''}${pastClass}" data-id="${t.id}">
@@ -662,7 +338,6 @@
                   </div>
                 `;
               }).join('')}
-              <div class="crack" data-stage="${crackStage}" style="opacity:${crackStage ? '.9' : '0'}"></div>
             </div>
           </div>
           `;
@@ -675,16 +350,16 @@
           ${data.dailyChecklist.map(cat => {
             const days = categoryDaysDone(cat, data.meta.challengeStart);
             const { current, next } = rankInfo(days);
-            const target    = next || current;              // se sei al massimo (Argento), resta Argento
             const threshold = next ? next.min : RANKS[1].min;
-            const pct       = Math.min(100, Math.round((days / threshold) * 100));
-            const label     = next ? `${cat.label} → ${next.name}` : `${cat.label} · ${current.name} ✓`;
+            const pct   = Math.min(100, Math.round((days / threshold) * 100));
+            const medal = current ? current.medal : '🔒';
+            const label = next ? `${cat.label} → ${next.name}` : `${cat.label} · ${current.name} max`;
             return `
               <div class="rank-item">
-                <div class="pix-slot"><span class="pix" style="color:${target.color}">${ICONS[cat.id] || ''}</span></div>
+                <div class="rank-medal">${medal}</div>
                 <div class="rank-body">
                   <div class="rank-name">${label}</div>
-                  <div class="mp-bar-wrap"><div class="mp-bar-fill" style="width:${pct}%;background:${target.color}"></div></div>
+                  <div class="bar"><div class="fill" style="width:${pct}%"></div></div>
                 </div>
                 <div class="rank-count">${days}/${threshold}</div>
               </div>`;
@@ -694,27 +369,11 @@
 
     `;
 
-    // Disegna le crepe pixel sui pannelli (stadio = task fatte)
-    document.querySelectorAll('.cat-block .crack').forEach(c => {
-      const st = +c.dataset.stage;
-      if (st) c.style.backgroundImage = `url("${crackTexture(st)}")`;
-    });
-
     // Navigazione
-    if (prevDay) {
-      document.getElementById('btn-prev').addEventListener('click', () => {
-        currentDay = prevDay;
-        render(data, currentDay);
-      });
-    }
-    if (nextDay) {
-      document.getElementById('btn-next').addEventListener('click', () => {
-        currentDay = nextDay;
-        render(data, currentDay);
-      });
-    }
+    if (prevDay) document.getElementById('btn-prev').addEventListener('click', () => { currentDay = prevDay; render(data, currentDay); });
+    if (nextDay) document.getElementById('btn-next').addEventListener('click', () => { currentDay = nextDay; render(data, currentDay); });
 
-    // Checklist events — solo oggi
+    // Checklist — solo oggi
     if (isToday) {
       document.querySelectorAll('.checklist-item').forEach(item => {
         item.addEventListener('click', function(e) {
@@ -724,7 +383,6 @@
           if (e.target !== chk) chk.checked = !chk.checked;
 
           const state = getChecklistState(day);
-          // l'area di questa task era già completa PRIMA del click?
           const cat = data.dailyChecklist.find(c => c.tasks.some(t => t.id === id));
           const wasComplete = cat.tasks.every(t => state[t.id]);
 
@@ -732,25 +390,24 @@
           setChecklistState(day, state);
 
           const nowComplete = cat.tasks.every(t => state[t.id]);
-          render(data, day); // ridisegna: conteggi per area, totale, verde
+          render(data, day);
 
-          // appena completata l'area → esplosione 💥
           if (!wasComplete && nowComplete) {
             const block = document.querySelector(`[data-cat="${cat.id}"]`);
-            if (block) { block.classList.add('justdone'); explode(block); }
+            if (block) { block.classList.add('justdone'); celebrate(block); }
           }
         });
       });
     }
 
-    // Note events — tutti i giorni (lettura passato, scrittura oggi)
+    // Note — tutti i giorni
     document.querySelectorAll('.note-btn').forEach(btn => {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
-        const id       = this.dataset.noteFor;
-        const area     = document.getElementById('note_' + id);
-        const preview  = document.getElementById('preview_' + id);
-        const isOpen   = area.classList.toggle('open');
+        const id      = this.dataset.noteFor;
+        const area    = document.getElementById('note_' + id);
+        const preview = document.getElementById('preview_' + id);
+        const isOpen  = area.classList.toggle('open');
         if (isOpen) {
           preview.style.display = 'none';
           if (isToday) area.querySelector('textarea').focus();
@@ -761,36 +418,24 @@
       });
     });
 
-    // Auto-save note mentre scrivi
+    // Auto-save note
     if (isToday) {
       document.querySelectorAll('.note-area textarea').forEach(ta => {
         const id = ta.closest('.note-area').id.replace('note_', '');
         ta.addEventListener('input', function() {
           saveNote(day, id, this.value);
           const preview = document.getElementById('preview_' + id);
-          if (this.value.trim()) { preview.textContent = this.value.trim(); }
+          if (this.value.trim()) preview.textContent = this.value.trim();
         });
       });
     }
-
   }
-
-  initSky();
 
   fetch('data.json?v=' + Date.now())
     .then(r => r.json())
     .then(data => {
-      // compatibilità col vecchio formato (milestones era un array)
-      if (Array.isArray(data.milestones)) {
-        data.milestones = { trading: data.milestones, social: [] };
-      }
-      // Scelta della vista: se oggi non hai ancora fatto clock-in → schermata di clock-in.
-      // Altrimenti (già dentro per oggi) → direttamente il tracker.
-      if (!hasClockedIn(TODAY)) {
-        renderClockIn(data);
-      } else {
-        render(data, currentDay);
-      }
+      if (!hasClockedIn(TODAY)) renderClockIn(data);
+      else render(data, currentDay);
     })
     .catch(err => {
       document.getElementById('app').textContent = 'Errore: ' + (err && err.message ? err.message : String(err));

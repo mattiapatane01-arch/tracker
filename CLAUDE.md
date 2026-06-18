@@ -51,7 +51,7 @@ Sta in `../FORMAZIONE-AI-NOTION.md` (le settimane 1-4). Ogni sessione: guarda qu
 
 ## STATO DEL PROGETTO
 
-- **Giorno corrente:** G6 — la pagina legge i dati reali (prossima sessione). G4-G5 completati il 18/06/2026.
+- **Giorno corrente:** G6 (prossima sessione). G4-G5 completati il 18/06/2026 + redesign UI nello stesso giorno (tempo libero, task del giorno già fatte).
 - **Online:** https://mattiapatane01-arch.github.io/tracker/ (GitHub Pages, branch `main`, root `/`).
 - **Repo git:** https://github.com/mattiapatane01-arch/tracker (pubblico). Flusso update: modifico → `git add` → `git commit` → `git push` → il sito si aggiorna da solo.
 - **Server locale:** `python3 -m http.server 8081` dalla cartella tracker → `http://localhost:8081`
@@ -71,10 +71,9 @@ Sta in `../FORMAZIONE-AI-NOTION.md` (le settimane 1-4). Ogni sessione: guarda qu
 - Cache-busting: `fetch('data.json?v='+Date.now())`
 
 **Struttura `data.json`:**
-- `meta` — `{lastUpdated, challengeStart}` (date `YYYY-MM-DD`). `challengeStart` = 2026-06-14, giorno 1 della challenge. `lastUpdated` va aggiornato a ogni modifica dei dati.
-- `dailyChecklist` — array di task con `id`, `label`, `required`
-- `counters` — array con `id`, `label`, `value`, `unit`
-- `milestones` — oggetto `{trading: [...], social: [...]}` con `id`, `name`, `description`, `deadline`, `status`, `targets?`
+- `meta` — `{lastUpdated, challengeStart}` (date `YYYY-MM-DD`). `challengeStart` = 2026-06-14. `lastUpdated` va aggiornato a ogni modifica dei dati.
+- `dailyChecklist` — array di **aree** (macro-categorie): `{id, label, icon, tasks: [{id, label}]}`. Aree attuali: `trading`, `social`, `ai`, `studio_extra`.
+- `counters` e `milestones` — **legacy, NON più usati dall'app** (rimasti nel file ma ignorati). I gradi si calcolano dalla history, non da qui.
 
 **Fatto in G3 (14/06/2026):**
 - Verificato che la struttura `data.json` nel CLAUDE.md combaci con quella reale
@@ -88,4 +87,13 @@ Sta in `../FORMAZIONE-AI-NOTION.md` (le settimane 1-4). Ogni sessione: guarda qu
 - G5: verificato che `data.json` regge (modello già completo: contatori reali + milestone con `targets`), aggiornato `lastUpdated` al 18/06 e pushato — primo giro completo del flusso di update
 - Concetto: git+GitHub = magazzino versionato per qualsiasi progetto; GitHub Pages = online solo per siti statici. "Andare da pro" = i piccoli passi diventano automatici, non si saltano
 
-**Prossimo (G6):** la pagina deve leggere `data.json` e mostrare i numeri veri, niente hardcoded (vedi `../FORMAZIONE-AI-NOTION.md`).
+**Redesign UI (18/06/2026 — tempo libero):**
+- Task riorganizzate in **4 aree** (trading/social/ai/studio_extra); tolto l'auto-conteggio (checklist e contatori scollegati di proposito).
+- **Streak per area** 🔥 (giorni di fila con l'area tutta completata).
+- **Clock-in** all'avvio (1 volta al giorno, chiave `tracker_clockin_YYYY-MM-DD`).
+- **Sezione "Gradi"**: medaglia + barra XP per area. Bronzo a **15** giorni totali completati, Argento a **50** (Oro 100 / Diamante 200 = futuri, non ancora). La medaglia raggiunta compare anche accanto al nome dell'area.
+- **Stile Duolingo** (chiaro, font Nunito, card morbide). Festeggiamento = **coriandoli** al completamento di un'area.
+- ⚠️ Tentato prima un **tema Minecraft** (crepe/esplosione/pixel/cielo): scartato perché brutto. Resta nel commit `16a239a` se mai servisse.
+- Lezione: un risultato che non piace è un dato; con git ci si torna indietro senza paura. Esplorare gli stili in parallelo (bozze grezze) e rifinire una volta sola.
+
+**Prossimo (G6):** la pagina già legge `data.json`; rifinire/sistemare quello che emerge usandolo davvero (gradi, eventuali aree). Non aggiungere altre feature finché non lo usa qualche giorno.
